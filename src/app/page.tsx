@@ -16,7 +16,7 @@ export default function Home() {
           seconds.
         </h1>
         <p className="mt-5 max-w-prose text-zinc-700 sm:text-lg">
-          This app allows you to have conversations with any PDF document.
+          dododocs allows you to have conversations with any PDF document.
           Simply upload your file and start asking questions right away.
         </p>
 
@@ -86,8 +86,7 @@ export default function Home() {
               Start chatting in minutes
             </h2>
             <p className="mt-4 text-lg text-gray-500">
-              Chatting to your PDF files has never been easier than with this
-              app
+              Chatting to your PDF files has never been easier than with dododocs
             </p>
           </div>
         </div>
