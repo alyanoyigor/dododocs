@@ -1,13 +1,14 @@
 'use client';
 
-import { trpc } from '@/app/_trpc/client';
+import { useState } from 'react';
 import { Ghost, Loader2, MessageSquare, Plus, Trash } from 'lucide-react';
-import Skeleton from 'react-loading-skeleton';
-import UploadButton from './UploadButton';
 import Link from 'next/link';
 import { format } from 'date-fns';
+import Skeleton from 'react-loading-skeleton';
+
+import { trpc } from '@/app/_trpc/client';
+import UploadButton from './UploadButton';
 import { Button } from './ui/button';
-import { useState } from 'react';
 
 const Dashboard = () => {
   const [curDelFile, setCurDelFile] = useState<string | null>(null);
@@ -32,8 +33,6 @@ const Dashboard = () => {
         <h1 className="mb-3 font-bold text-5xl text-gray-900">My Files</h1>
         <UploadButton />
       </div>
-
-      {/* display files */}
 
       {isLoading && <Skeleton height={100} className="my-2" count={3} />}
       {!isLoading && (!files || !files?.length) && (
