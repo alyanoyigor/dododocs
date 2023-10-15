@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Dropzone from 'react-dropzone';
-import { Cloud, File } from 'lucide-react';
+import { Cloud, File, Loader2 } from 'lucide-react';
 import { Progress } from './ui/progress';
 import { useToast } from './ui/use-toast';
 import { trpc } from '@/app/_trpc/client';
@@ -11,7 +11,7 @@ import { useUploadThing } from '@/lib/uploadthing';
 
 const UploadDropzone = () => {
   const router = useRouter();
-  const [isUploading, setIsUploading] = useState(true);
+  const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
 
   const { startUpload } = useUploadThing('pdfUploader');
@@ -46,6 +46,8 @@ const UploadDropzone = () => {
     setIsUploading(true);
 
     const progressInterval = startSimulateProgress();
+    // for testing progress simulation
+    // await new Promise((resolve) => setTimeout(resolve, 5000));
     const uploadResponse = await startUpload(files);
     const showErrorNotification = toast.bind(null, {
       title: 'Something went wrong',
@@ -104,8 +106,17 @@ const UploadDropzone = () => {
                 <div className="w-full mt-4 max-w-xs mx-auto">
                   <Progress
                     value={uploadProgress}
+                    indecatorColor={
+                      uploadProgress === 100 ? 'bg-green-500' : ''
+                    }
                     className="h-1 w-full bg-zinc-200"
                   />
+                </div>
+              )}
+              {isUploading && uploadProgress === 100 && (
+                <div className="flex gap-1 items-center justify-center text-sm text-zinc-700 text-center pt-2">
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                  Redirecting...
                 </div>
               )}
 
