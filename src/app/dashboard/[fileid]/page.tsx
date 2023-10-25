@@ -1,14 +1,14 @@
 import { notFound, redirect } from 'next/navigation';
 import { db } from '@/db';
 import PdfRenderer from '@/components/PdfRenderer';
-import ChatWrapper from '@/components/ChatWrapper';
+import ChatWrapper from '@/components/chat/ChatWrapper';
 import { getKindeUser } from '@/lib/auth';
 
-interface FilePageProps {
+type FilePageProps = {
   params: {
     fileid: string;
   };
-}
+};
 
 const FilePage = async ({ params }: FilePageProps) => {
   const { fileid } = params;
@@ -37,7 +37,7 @@ const FilePage = async ({ params }: FilePageProps) => {
         </div>
 
         <div className="shrink-0 flex-[0.75] border-t border-gray-200 lg:w-96 lg:border-l lg:border-t-0">
-          <ChatWrapper />
+          <ChatWrapper fileId={file.id} />
         </div>
       </div>
     </div>
