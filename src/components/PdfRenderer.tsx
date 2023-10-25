@@ -27,6 +27,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
+import PdfFullscreen from './PdfFullscreen';
+import DocumentPage from './DocumentPage';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
@@ -35,8 +37,6 @@ type PdfRendererProps = {
 };
 
 const PdfRenderer = ({ url }: PdfRendererProps) => {
-  const { toast } = useToast();
-  const { width, ref } = useResizeDetector();
   const [pages, setPages] = useState<number | null>(null);
   const [curPage, setCurPage] = useState(1);
   const [scale, setScale] = useState(1);
@@ -64,11 +64,13 @@ const PdfRenderer = ({ url }: PdfRendererProps) => {
 
   const onClickPrevPageButton = () => {
     setCurPage((prevPage) => (prevPage - 1 > 1 ? prevPage - 1 : 1));
+    setValue('page', String(curPage - 1));
   };
 
   const onClickNextPageButton = () => {
     if (pages !== null) {
       setCurPage((prevPage) => (prevPage + 1 > pages ? pages : prevPage + 1));
+      setValue('page', String(curPage + 1));
     }
   };
 
@@ -148,44 +150,39 @@ const PdfRenderer = ({ url }: PdfRendererProps) => {
           </DropdownMenu>
 
           <Button
-            onClick={() => setRotation((prev) => prev + 90)}
+            onClick={() => setRotation((prev) => (prev >= 360 ? 0 : prev + 90))}
             variant="ghost"
             aria-label="rotate 90 degrees"
           >
             <RotateCw className="h-4 w-4" />
           </Button>
+
+          <PdfFullscreen
+            curPage={curPage}
+            url={url}
+            pages={pages}
+            handleLoadSuccess={({ numPages }) => setPages(numPages)}
+          />
         </div>
       </div>
 
       <div className="flex-1 w-full max-h-screen">
-        <SimpleBar autoHide={false} className="max-h-[calc(100vh-10rem)]">
-          <div ref={ref}>
-            <Document
-              loading={
-                <div className="flex justify-center">
-                  <Loader2 className="my-24 h-6 w-6 animate-spin" />
-                </div>
-              }
-              onLoadError={() =>
-                toast({
-                  title: 'Error loading pdf',
-                  description: 'Please try again later',
-                  variant: 'destructive',
-                })
-              }
-              onLoadSuccess={({ numPages }) => setPages(numPages)}
-              file={url}
-              className="max-h-full"
-            >
-              <Page
-                width={width ? width : 1}
-                pageNumber={curPage}
-                scale={scale}
-                rotate={rotation}
-              />
-            </Document>
-          </div>
-        </SimpleBar>
+        <DocumentPage
+          url={url}
+          handleLoadSuccess={({ numPages }) => setPages(numPages)}
+          scale={scale}
+          page={({ width, loading, className, onRenderSuccess }) => (
+            <Page
+              className={className}
+              onRenderSuccess={onRenderSuccess}
+              loading={loading}
+              width={width}
+              pageNumber={curPage}
+              scale={scale}
+              rotate={rotation}
+            />
+          )}
+        />
       </div>
     </div>
   );
