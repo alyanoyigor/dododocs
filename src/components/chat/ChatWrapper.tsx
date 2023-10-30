@@ -1,30 +1,30 @@
 'use client';
 
+import Link from 'next/link';
+import { FunctionComponent, ReactNode } from 'react';
+import { ChevronLeft, Loader2, XCircle } from 'lucide-react';
+
 import { trpc } from '@/app/_trpc/client';
 import ChatInput from './ChatInput';
 import Messages from './Messages';
-import { ChevronLeft, Loader2, XCircle } from 'lucide-react';
-import { FunctionComponent, ReactNode } from 'react';
-import Link from 'next/link';
 import { buttonVariants } from '../ui/button';
+import { ChatContextProvider } from './ChatContext';
 
-type ChatWrapperProps = {
-  fileId: string;
-};
-
-const ChatContainer = ({
-  children,
-  Input,
-  Icon,
-  title,
-  description,
-}: {
+type ChatResponseContainer = {
   Input: FunctionComponent;
   Icon: FunctionComponent;
   title: string;
   description: string | ReactNode;
   children?: ReactNode;
-}) => {
+};
+
+const ChatResponseContainer = ({
+  children,
+  Input,
+  Icon,
+  title,
+  description,
+}: ChatResponseContainer) => {
   return (
     <div className="relative min-h-full bg-zinc-50 flex divide-y divide-zinc-200 flex-col justify-between gap-2 ">
       <div className="flex-1 justify-center items-center flex flex-col mb-28">
@@ -41,6 +41,10 @@ const ChatContainer = ({
   );
 };
 
+type ChatWrapperProps = {
+  fileId: string;
+};
+
 const ChatWrapper = ({ fileId }: ChatWrapperProps) => {
   const { isLoading, data } = trpc.getFileUploadStatus.useQuery(
     { fileId },
@@ -51,9 +55,9 @@ const ChatWrapper = ({ fileId }: ChatWrapperProps) => {
   );
 
   return (
-    <>
+    <ChatContextProvider fileId={fileId}>
       {isLoading && (
-        <ChatContainer
+        <ChatResponseContainer
           title="Loading..."
           description="We're preparing your PDF"
           Icon={() => (
@@ -63,7 +67,7 @@ const ChatWrapper = ({ fileId }: ChatWrapperProps) => {
         />
       )}
       {data?.status === 'PROCESSING' && (
-        <ChatContainer
+        <ChatResponseContainer
           title="Processing..."
           description="This won't take long"
           Icon={() => (
@@ -73,7 +77,7 @@ const ChatWrapper = ({ fileId }: ChatWrapperProps) => {
         />
       )}
       {data?.status === 'FAILED' && (
-        <ChatContainer
+        <ChatResponseContainer
           title="Too many pages in PDF"
           description={
             <>
@@ -93,7 +97,7 @@ const ChatWrapper = ({ fileId }: ChatWrapperProps) => {
           >
             <ChevronLeft className="h-3 w-3 mr-1.5" /> Back
           </Link>
-        </ChatContainer>
+        </ChatResponseContainer>
       )}
       <div className="relative min-h-full bg-zinc-50 flex divide-y divide-zinc-200 flex-col justify-between gap-2">
         <div className="flex-1 justify-between flex flex-col mb-28">
@@ -102,7 +106,7 @@ const ChatWrapper = ({ fileId }: ChatWrapperProps) => {
 
         <ChatInput />
       </div>
-    </>
+    </ChatContextProvider>
   );
 };
 

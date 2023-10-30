@@ -46,8 +46,10 @@ const UploadDropzone = () => {
     setIsUploading(true);
 
     const progressInterval = startSimulateProgress();
+
     // for testing progress simulation
     // await new Promise((resolve) => setTimeout(resolve, 5000));
+
     const uploadResponse = await startUpload(files);
     const showErrorNotification = toast.bind(null, {
       title: 'Something went wrong',

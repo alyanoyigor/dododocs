@@ -17,12 +17,13 @@ const AuthCallback = () => {
       }
     },
     onError: (error) => {
+      console.log(error.data);
       if (error.data?.code === 'UNAUTHORIZED') {
-        router.push('/sign-in');
+        router.push('/api/auth/login');
       }
     },
-    retry: true,
-    retryDelay: 500,
+    // retry: true,
+    // retryDelay: 500,
   });
 
   return (

@@ -1,15 +1,15 @@
-import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server';
 import { TRPCError } from '@trpc/server';
 import { db } from '@/db';
 import { authProcedure, publicProcedure, router } from './trpc';
 import { z } from 'zod';
+import { utapi } from 'uploadthing/server';
+import { getKindeUser } from '@/lib/auth';
 
 export const appRouter = router({
   authCallback: publicProcedure.query(async () => {
-    const { getUser } = getKindeServerSession();
-    const user = getUser();
+    const user = getKindeUser();
 
-    if (!user.id || !user.email) {
+    if (!user?.id || !user?.email) {
       throw new TRPCError({ code: 'UNAUTHORIZED' });
     }
 
@@ -48,6 +48,8 @@ export const appRouter = router({
       await db.file.delete({
         where: { id: input.id },
       });
+      // delete from uploadthing
+      await utapi.deleteFiles(file.key);
       return file;
     }),
   getFileUploadStatus: authProcedure

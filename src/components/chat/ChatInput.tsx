@@ -1,12 +1,34 @@
 import { Send } from 'lucide-react';
+import { KeyboardEvent, useContext, useRef } from 'react';
+
 import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
+import { ChatContext } from './ChatContext';
 
 type ChatInputProps = {
   disabled?: boolean;
 };
 
 const ChatInput = ({ disabled }: ChatInputProps) => {
+  const { addMessage, handleInputChange, isLoading, message } =
+    useContext(ChatContext);
+
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const onKeyDownTextarea = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+
+      addMessage();
+      textareaRef.current?.focus();
+    }
+  };
+
+  const onClickButton = () => {
+    addMessage();
+    textareaRef.current?.focus();
+  };
+
   return (
     <div className="absolute bottom-0 left-0 w-full">
       <form className="mx-2 flex flex-row gap-3 md:mx-4 md:last:mb-6 lg:mx-auto lg:max-w-2xl xl:max-w-3xl">
@@ -14,6 +36,10 @@ const ChatInput = ({ disabled }: ChatInputProps) => {
           <div className="relative flex flex-col w-full flex-grow p-4">
             <div className="relative">
               <Textarea
+                ref={textareaRef}
+                onKeyDown={onKeyDownTextarea}
+                onChange={handleInputChange}
+                value={message}
                 rows={1}
                 maxRows={4}
                 placeholder="Enter your question..."
@@ -24,7 +50,9 @@ const ChatInput = ({ disabled }: ChatInputProps) => {
               <Button
                 className="absolute bottom-1.5 right-[8px]"
                 aria-label="Send message"
-                disabled={disabled}
+                disabled={isLoading || disabled}
+                type="submit"
+                onClick={onClickButton}
               >
                 <Send className="h-4 w-4" />
               </Button>
