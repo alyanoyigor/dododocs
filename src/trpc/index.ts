@@ -4,6 +4,7 @@ import { authProcedure, publicProcedure, router } from './trpc';
 import { z } from 'zod';
 import { utapi } from 'uploadthing/server';
 import { getKindeUser } from '@/lib/auth';
+import { INFINITE_QUERY_LIMIT } from '@/config';
 
 export const appRouter = router({
   authCallback: publicProcedure.query(async () => {
@@ -75,6 +76,54 @@ export const appRouter = router({
         throw new TRPCError({ code: 'NOT_FOUND' });
       }
       return file;
+    }),
+  getFileMessages: authProcedure
+    .input(
+      z.object({
+        limit: z.number().min(1).max(100).nullish(),
+        cursor: z.string().nullish(),
+        fileId: z.string(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const { userId } = ctx;
+      const { fileId, cursor } = input;
+      const limit = input.limit ?? INFINITE_QUERY_LIMIT;
+
+      const file = await db.file.findFirst({
+        where: {
+          id: fileId,
+          userId,
+        },
+      });
+      if (!file) {
+        throw new TRPCError({ code: 'NOT_FOUND' });
+      }
+
+      const messages = await db.message.findMany({
+        take: limit + 1,
+        where: {
+          fileId,
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+        cursor: cursor ? { id: cursor } : undefined,
+        select: {
+          id: true,
+          isUserMessage: true,
+          createdAt: true,
+          text: true,
+        },
+      });
+
+      let nextCursor: typeof cursor | null = null;
+      if (messages.length > limit) {
+        const nextItem = messages.pop();
+        nextCursor = nextItem?.id;
+      }
+
+      return { messages, nextCursor };
     }),
 });
 
