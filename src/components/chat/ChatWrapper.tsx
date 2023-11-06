@@ -66,7 +66,7 @@ const ChatWrapper = ({ fileId }: ChatWrapperProps) => {
           Input={() => <ChatInput disabled />}
         />
       )}
-      {data?.status === 'PROCESSING' && (
+      {!isLoading && data?.status === 'PROCESSING' && (
         <ChatResponseContainer
           title="Processing..."
           description="This won't take long"
@@ -76,7 +76,7 @@ const ChatWrapper = ({ fileId }: ChatWrapperProps) => {
           Input={() => <ChatInput disabled />}
         />
       )}
-      {data?.status === 'FAILED' && (
+      {!isLoading && data?.status === 'FAILED' && (
         <ChatResponseContainer
           title="Too many pages in PDF"
           description={
@@ -99,13 +99,15 @@ const ChatWrapper = ({ fileId }: ChatWrapperProps) => {
           </Link>
         </ChatResponseContainer>
       )}
-      <div className="relative min-h-full bg-zinc-50 flex divide-y divide-zinc-200 flex-col justify-between gap-2">
-        <div className="flex-1 justify-between flex flex-col mb-28">
-          <Messages fileId={fileId} />
-        </div>
+      {!isLoading && data?.status === 'SUCCESS' && (
+        <div className="relative min-h-full bg-zinc-50 flex divide-y divide-zinc-200 flex-col justify-between gap-2">
+          <div className="flex-1 justify-between flex flex-col mb-28">
+            <Messages fileId={fileId} />
+          </div>
 
-        <ChatInput />
-      </div>
+          <ChatInput />
+        </div>
+      )}
     </ChatContextProvider>
   );
 };

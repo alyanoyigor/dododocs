@@ -1,10 +1,10 @@
 import { TRPCError } from '@trpc/server';
-import { db } from '@/db';
-import { authProcedure, publicProcedure, router } from './trpc';
 import { z } from 'zod';
 import { utapi } from 'uploadthing/server';
+import { db } from '@/db';
 import { getKindeUser } from '@/lib/auth';
 import { INFINITE_QUERY_LIMIT } from '@/config';
+import { authProcedure, publicProcedure, router } from './trpc';
 
 export const appRouter = router({
   authCallback: publicProcedure.query(async () => {
@@ -117,7 +117,7 @@ export const appRouter = router({
         },
       });
 
-      let nextCursor: typeof cursor | null = null;
+      let nextCursor: typeof cursor | undefined = undefined;
       if (messages.length > limit) {
         const nextItem = messages.pop();
         nextCursor = nextItem?.id;

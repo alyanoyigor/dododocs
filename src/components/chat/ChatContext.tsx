@@ -44,7 +44,8 @@ export const ChatContextProvider = ({
       });
 
       if (!response?.ok) {
-        throw new Error('Message does not received!');
+        const errorText = await response.text();
+        throw new Error(errorText);
       }
 
       return response.body;
@@ -115,7 +116,7 @@ export const ChatContextProvider = ({
         const chunkValue = decoder.decode(value);
         accResponse += chunkValue;
 
-        // add chunk to message
+        // append chunk to the actual message
         utils.getFileMessages.setInfiniteData(
           {
             fileId,
@@ -144,7 +145,7 @@ export const ChatContextProvider = ({
                   ];
                 } else {
                   updatedMessages = page.messages.map((message) => {
-                    if (message.id === 'ai-reponse') {
+                    if (message.id === 'ai-response') {
                       return {
                         ...message,
                         text: accResponse,
@@ -169,12 +170,20 @@ export const ChatContextProvider = ({
       }
     },
 
-    onError: (_, __, context) => {
+    onError: (error, _, context) => {
       setMessage(backupMessage.current);
       utils.getFileMessages.setData(
         { fileId },
         { messages: context?.previousMessages ?? [] }
       );
+      return toast({
+        title: 'There was a problem sending this message',
+        description:
+          error instanceof Error
+            ? error.message
+            : 'Plese refresh page and try again',
+        variant: 'destructive',
+      });
     },
 
     onSettled: async () => {
