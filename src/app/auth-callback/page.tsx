@@ -17,7 +17,6 @@ const AuthCallback = () => {
       }
     },
     onError: (error) => {
-      console.log(error.data);
       if (error.data?.code === 'UNAUTHORIZED') {
         router.push('/api/auth/login');
       }
