@@ -4,9 +4,13 @@ import { Button } from './ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 import Icons from './Icons';
+import Link from 'next/link';
+import { LogoutLink } from '@kinde-oss/kinde-auth-nextjs/server';
 
 type NavbarUserAccountProps = {
   name: string;
@@ -53,6 +57,10 @@ const NavbarUserAccount = ({
             )}
           </div>
         </div>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem className="cursor-pointer" asChild>
+          <LogoutLink>Log out</LogoutLink>
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

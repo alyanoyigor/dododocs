@@ -5,6 +5,7 @@ import { LoginLink, RegisterLink } from '@kinde-oss/kinde-auth-nextjs/server';
 import { ArrowRight } from 'lucide-react';
 import { getKindeUser } from '@/lib/auth';
 import NavbarUserAccount from './NavbarUserAccount';
+import NavbarMobile from './NavbarMobile';
 
 const Navbar = () => {
   const user = getKindeUser();
@@ -17,9 +18,9 @@ const Navbar = () => {
             dododocs
           </Link>
 
-          {/* todo: Add mobile navbar */}
+          <NavbarMobile isAuth={Boolean(user)} />
 
-          <div className="items-center space-x-4 sm:flex ">
+          <div className="hidden items-center space-x-4 sm:flex">
             {!user && (
               <>
                 <Link
