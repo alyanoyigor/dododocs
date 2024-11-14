@@ -1,13 +1,10 @@
 'use client';
-import {
-  LoginLink,
-  LogoutLink,
-  RegisterLink,
-} from '@kinde-oss/kinde-auth-nextjs/server';
+
 import { ArrowRight, MenuIcon } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
+import { Button } from './ui/button';
 
 type NavbarMobileProps = {
   isAuth: boolean;
@@ -44,15 +41,15 @@ const NavbarMobile = ({ isAuth }: NavbarMobileProps) => {
             {!isAuth && (
               <>
                 <li>
-                  <RegisterLink className="flex items-center w-full font-semibold text-green-600">
+                  <Button className="flex items-center w-full font-semibold text-green-600">
                     Get started <ArrowRight className="ml-2 h-5 w-5" />
-                  </RegisterLink>
+                  </Button>
                 </li>
                 <li className="my-3 h-px w-full bg-gray-300" />
                 <li>
-                  <LoginLink className="flex items-center w-full font-semibold">
+                  <Button className="flex items-center w-full font-semibold">
                     Sign in
-                  </LoginLink>
+                  </Button>
                 </li>
               </>
             )}
@@ -69,9 +66,9 @@ const NavbarMobile = ({ isAuth }: NavbarMobileProps) => {
                 </li>
                 <li className="my-3 h-px w-full bg-gray-300" />
                 <li>
-                  <LogoutLink className="flex items-center w-full font-semibold">
-                    Log out
-                  </LogoutLink>
+                  <Button className="flex items-center w-full font-semibold">
+                    Sign out
+                  </Button>
                 </li>
               </>
             )}

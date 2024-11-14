@@ -1,18 +1,23 @@
 import { PropsWithChildren } from 'react';
-import type { Metadata } from 'next';
+import type { Viewport } from 'next';
 import { Inter } from 'next/font/google';
 
 import { cn, constructMetadata } from '@/lib/utils';
 import Navbar from '@/components/Navbar';
 import Providers from '@/components/Providers';
 import { Toaster } from '@/components/ui/toaster';
-import './globals.css';
+
 import 'react-loading-skeleton/dist/skeleton.css';
 import 'simplebar-react/dist/simplebar.min.css';
+import './globals.css';
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ['latin'], display: "swap" });
 
 export const metadata = constructMetadata();
+
+export const viewport: Viewport = {
+  themeColor: '#ffffff',
+}
 
 export default function RootLayout({ children }: PropsWithChildren) {
   return (
@@ -20,13 +25,13 @@ export default function RootLayout({ children }: PropsWithChildren) {
       <Providers>
         <body
           className={cn(
-            'min-h-screen font-sans antialiased grainy',
+            'min-h-screen antialiased grainy',
             inter.className
           )}
         >
-          <Toaster />
-          <Navbar />
-          {children}
+            <Toaster />
+            <Navbar />
+            {children}
         </body>
       </Providers>
     </html>

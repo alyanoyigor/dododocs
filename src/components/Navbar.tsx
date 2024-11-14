@@ -1,14 +1,12 @@
 import Link from 'next/link';
 import MaxWidthWrapper from './MaxWidthWrapper';
 import { buttonVariants } from './ui/button';
-import { LoginLink, RegisterLink } from '@kinde-oss/kinde-auth-nextjs/server';
 import { ArrowRight } from 'lucide-react';
-import { getKindeUser } from '@/lib/auth';
 import NavbarUserAccount from './NavbarUserAccount';
 import NavbarMobile from './NavbarMobile';
 
 const Navbar = () => {
-  const user = getKindeUser();
+  // const user = getKindeUser();
 
   return (
     <nav className="sticky h-14 inset-x-0 top-0 z-30 w-full border-b border-gray-200 bg-white/75 backdrop-blur-lg transition-all">
@@ -18,10 +16,9 @@ const Navbar = () => {
             dododocs
           </Link>
 
-          <NavbarMobile isAuth={Boolean(user)} />
+          {/* <NavbarMobile isAuth={Boolean(user)} /> */}
 
           <div className="hidden items-center space-x-4 sm:flex">
-            {!user && (
               <>
                 <Link
                   className={buttonVariants({
@@ -32,24 +29,25 @@ const Navbar = () => {
                 >
                   Pricing
                 </Link>
-                <LoginLink
+                <Link
                   className={buttonVariants({
                     variant: 'ghost',
                     size: 'sm',
                   })}
+                  href="/sign-in"
                 >
                   Sign in
-                </LoginLink>
-                <RegisterLink
+                </Link>
+                <Link
                   className={buttonVariants({
                     size: 'sm',
                   })}
+                  href="/sign-up"
                 >
                   Get started <ArrowRight className="ml-1.5 h-5 w-5" />
-                </RegisterLink>
+                </Link>
               </>
-            )}
-            {user && (
+            {/* {user && (
               <>
                 <Link
                   className={buttonVariants({
@@ -70,7 +68,7 @@ const Navbar = () => {
                   imageUrl={user.picture ?? ''}
                 />
               </>
-            )}
+            )} */}
           </div>
         </div>
       </MaxWidthWrapper>

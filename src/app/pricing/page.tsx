@@ -8,7 +8,6 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { PLANS } from '@/config';
-import { getKindeUser } from '@/lib/auth';
 import { cn } from '@/lib/utils';
 import { ArrowRight, Check, HelpCircle, Minus } from 'lucide-react';
 import { buttonVariants } from '@/components/ui/button';
@@ -24,7 +23,6 @@ const CustomTooltip = ({ children }: { children: ReactNode }) => (
 );
 
 const Pricing = () => {
-  const user = getKindeUser();
 
   const pricingItems = [
     {
@@ -157,7 +155,7 @@ const Pricing = () => {
                 </ul>
 
                 <div className="border-t border-gray-200" />
-                <div className="p-5">
+                {/* <div className="p-5">
                   {slug === 'free' && (
                     <Link
                       href={user ? '/dashboard' : '/sign-in'}
@@ -182,7 +180,7 @@ const Pricing = () => {
                       <ArrowRight className="h-5 w-5 ml-1.5" />
                     </Link>
                   )}
-                </div>
+                </div> */}
               </div>
             );
           })}
