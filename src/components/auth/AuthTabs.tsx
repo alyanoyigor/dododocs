@@ -13,6 +13,7 @@ import { AuthTabsEnum } from '@/types/auth';
 import { SignInFormValidator, SignInFormValidatorType, SignUpFormValidator, SignUpFormValidatorType } from '@/validation/auth';
 import { signInInputs, signUpInputs } from '@/constants/auth';
 import AuthForm from './AuthForm';
+import { trpc } from '@/app/_trpc/client';
 
 function AuthTabs({ tab }: { tab: AuthTabsEnum }) {
   const [activeTab, setActiveTab] = useState(tab);
@@ -38,16 +39,34 @@ function AuthTabs({ tab }: { tab: AuthTabsEnum }) {
     resolver: zodResolver(SignInFormValidator),
   });
 
+
+  const { mutate: signInRequest } = trpc.signIn.useMutation();
+
+  const {mutate: signUpRequest} = trpc.signUp.useMutation({
+    onSuccess: (token) => {
+      console.log('token', token);
+      // when mutation success
+    },
+    onMutate: () => {
+      // when mutation starts
+    },
+    onSettled: () => {
+      // when mutation ends
+    },
+  });
+
+
   const onSignUpSubmit = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     handleSignUpSubmit((data) => {
-      console.log('submit', data);
+      signUpRequest(data);
     })();
     resetSignUpForm();
   };
   const onSignInSubmit = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     handleSignInSubmit((data) => {
+      signInRequest(data);
       console.log('submit', data);
     })();
     resetSignInForm();

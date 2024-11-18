@@ -1,14 +1,34 @@
 import { TRPCError, initTRPC } from '@trpc/server';
+import type { CreateNextContextOptions } from '@trpc/server/adapters/next';
+import { ZodError } from 'zod';
+import superjson from 'superjson';
+import { db } from '@/db';
+import { verifyToken } from '@/lib/auth';
+import { JwtPayload, verify } from 'jsonwebtoken';
 
-const t = initTRPC.create();
+const createTRPCContext = (options: CreateNextContextOptions) => {
+  const { req, res } = options;
 
-const middleware = t.middleware;
-const isAuth = middleware(async (options) => {
-  // if (!user || !user.id) {
-  //   throw new TRPCError({ code: 'UNAUTHORIZED' });
-  // }
-  return options.next({
-    ctx: {},
+  return {
+    req,
+    res,
+  };
+}
+
+const t = initTRPC.context<Awaited<ReturnType<typeof createTRPCContext>>>().create();
+
+// const t = initTRPC.create();
+
+const isAuth = t.middleware(({ctx, next}) => {
+  const { req } = ctx;
+  const token = req.headers.authorization?.split(' ')[1];
+
+  const userId = verifyToken(token);
+
+  return next({
+    ctx: {
+      userId,
+    },
   });
 });
 

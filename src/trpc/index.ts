@@ -1,14 +1,54 @@
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 import { utapi } from 'uploadthing/server';
-import { db } from '@/db';
+import { compare, hash } from 'bcrypt';
+// import { db } from '@/db';
 import { INFINITE_QUERY_LIMIT } from '@/config';
 import { authProcedure, publicProcedure, router } from './trpc';
+import { SignInFormValidator, SignUpFormValidatorBE } from '@/validation/auth';
+import { signToken } from '@/lib/auth';
 
 export const appRouter = router({
+  signUp: publicProcedure
+    .input(SignUpFormValidatorBE)
+    .mutation(async ({ input }) => {
+      const { name, email, password } = input;
+      const hashedPassword = await hash(password, 10);
+      const userId = 'userId';
+
+      const token = signToken(userId);
+
+      return token;
+    }),
+  signIn: publicProcedure
+    .input(SignInFormValidator)
+    .mutation(async ({ input }) => {
+      const { email, password } = input;
+      const dbUser = 'dbUser';
+
+      if (!dbUser) {
+        throw new TRPCError({
+          code: 'UNAUTHORIZED',
+        });
+      }
+
+      const dbUserPassword = 'dbUserPassword';
+      const dbUserId = 'dbUserId';
+
+      const passwordMatch = await compare(password, dbUserPassword);
+
+      if (!passwordMatch) {
+        throw new TRPCError({
+          code: 'UNAUTHORIZED',
+        });
+      }
+
+      const token = signToken(dbUserId);
+
+      return token;
+    }),
   getUserFiles: authProcedure.query(async ({ ctx }) => {
     // const { userId, user } = ctx;
-
     // return await db.file.findMany({
     //   where: { userId },
     // });
@@ -60,13 +100,12 @@ export const appRouter = router({
         limit: z.number().min(1).max(100).nullish(),
         cursor: z.string().nullish(),
         fileId: z.string(),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
       // const { userId } = ctx;
       // const { fileId, cursor } = input;
       // const limit = input.limit ?? INFINITE_QUERY_LIMIT;
-
       // const file = await db.file.findFirst({
       //   where: {
       //     id: fileId,
@@ -76,7 +115,6 @@ export const appRouter = router({
       // if (!file) {
       //   throw new TRPCError({ code: 'NOT_FOUND' });
       // }
-
       // const messages = await db.message.findMany({
       //   take: limit + 1,
       //   where: {
@@ -93,13 +131,11 @@ export const appRouter = router({
       //     text: true,
       //   },
       // });
-
       // let nextCursor: typeof cursor | undefined = undefined;
       // if (messages.length > limit) {
       //   const nextItem = messages.pop();
       //   nextCursor = nextItem?.id;
       // }
-
       // return { messages, nextCursor };
     }),
 });
