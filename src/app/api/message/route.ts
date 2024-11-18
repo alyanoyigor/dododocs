@@ -2,10 +2,10 @@ import { NextRequest } from 'next/server';
 import { OpenAIStream, StreamingTextResponse } from 'ai';
 import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
 import { PineconeStore } from 'langchain/vectorstores/pinecone';
-import { db } from '@/db';
-import { openai } from '@/lib/openai';
-import { SendMessageValidator } from '@/lib/validators/SendMessageValidator';
-import { pinecone } from '@/lib/pinecone';
+import { db } from '@/core/db';
+import { openai } from '@/core/lib/openai';
+import { SendMessageValidator } from '@/app/shared/validation/chat';
+import { pinecone } from '@/core/lib/pinecone';
 
 export const POST = async (request: NextRequest) => {
   // try {
