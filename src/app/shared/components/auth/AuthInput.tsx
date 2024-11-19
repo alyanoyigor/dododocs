@@ -10,6 +10,7 @@ import { Label } from '../ui/label';
 type AuthAuthInputData<T extends FieldValues> = {
   registerData: UseFormRegisterReturn;
   inputInfo: AuthInputData<T>;
+  disabled: boolean;
   error?: string;
 };
 
@@ -17,6 +18,7 @@ function AuthInput<T extends FieldValues>({
   error,
   registerData,
   inputInfo,
+  disabled,
 }: AuthAuthInputData<T>) {
   const { title, key, type, autoComplete } = inputInfo;
   const InputElement = type === 'password' ? PasswordInput : Input;
@@ -37,6 +39,7 @@ function AuthInput<T extends FieldValues>({
           )}
           id={key}
           autoComplete={autoComplete || 'off'}
+          disabled={disabled}
         />
       </div>
       {error && (

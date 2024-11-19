@@ -15,10 +15,6 @@ export const passwordCreate = z
   .regex(
     new RegExp('.*\\d.*'),
     'Password should include uppercase character, number and special character',
-  )
-  .regex(
-    new RegExp('.*[`~<>?,./!@#$%^&*()\\-_+="\'|{}\\[\\];:\\\\].*'),
-    'Password should include uppercase character, number and special character',
   );
 
 export const validation = {

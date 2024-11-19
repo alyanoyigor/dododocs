@@ -14,6 +14,7 @@ import {
 } from '@/app/shared/validation/auth';
 import { signInInputs, signUpInputs } from '@/app/shared/constants/auth';
 import { trpc } from '@/app/_trpc/client';
+import { navigate, setCookie } from '@/app/shared/actions';
 
 import MaxWidthWrapper from '../MaxWidthWrapper';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
@@ -29,14 +30,13 @@ function useAuthForm<T extends FieldValues>(
     handleSubmit,
     formState: { errors },
     reset,
+    setError,
   } = useForm<T>(useFormOptions);
 
   const onSubmit = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    handleSubmit((data) => {
-      submitCallback(data);
-      reset();
-    })();
+
+    handleSubmit((data) => submitCallback(data))();
   };
 
   return {
@@ -44,6 +44,7 @@ function useAuthForm<T extends FieldValues>(
     onSubmit,
     errors,
     reset,
+    setError,
   };
 }
 
@@ -51,17 +52,21 @@ function AuthTabs({ tab }: { tab: AuthTabsEnum }) {
   const [activeTab, setActiveTab] = useState(tab);
   const router = useRouter();
 
-  const { mutate: signUpRequest } = trpc.signUp.useMutation({
+  const {
+    mutate: signUpRequest,
+    isLoading: isSignUpLoading,
+  } = trpc.signUp.useMutation({
     onSuccess: (token) => {
-      console.log('token', token);
-      // when mutation success
+      setCookie('token', token);
+
+      resetSignUpForm();
+      navigate('/');
     },
-    onMutate: () => {
-      // when mutation starts
-    },
-    onSettled: () => {
-      // when mutation ends
-    },
+    onError: () => {
+      setSignUpError('root', {
+        message: 'Internal server error. Please try again later.',
+      });
+    }
   });
 
   const { mutate: signInRequest } = trpc.signIn.useMutation();
@@ -71,6 +76,7 @@ function AuthTabs({ tab }: { tab: AuthTabsEnum }) {
     onSubmit: onSignUpSubmit,
     errors: signUpErrorsForm,
     reset: resetSignUpForm,
+    setError: setSignUpError,
   } = useAuthForm(
     { reValidateMode: 'onSubmit', resolver: zodResolver(SignUpFormValidator) },
     (data: SignUpFormValidatorType) => signUpRequest(data),
@@ -81,10 +87,11 @@ function AuthTabs({ tab }: { tab: AuthTabsEnum }) {
     onSubmit: onSignInSubmit,
     errors: signInErrors,
     reset: resetSignInForm,
+    setError: setSignInError,
   } = useAuthForm(
     { reValidateMode: 'onSubmit', resolver: zodResolver(SignInFormValidator) },
     (data: SignInFormValidatorType) => signInRequest(data),
-  )
+  );
 
   const onTabChange = (tab: AuthTabsEnum) => {
     setActiveTab(tab);
@@ -127,6 +134,7 @@ function AuthTabs({ tab }: { tab: AuthTabsEnum }) {
             register={signUpRegister}
             onSubmit={onSignUpSubmit}
             inputs={signUpInputs}
+            isLoading={isSignUpLoading}
           />
         </TabsContent>
       </Tabs>

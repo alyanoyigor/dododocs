@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import { OpenAIStream, StreamingTextResponse } from 'ai';
 import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
 import { PineconeStore } from 'langchain/vectorstores/pinecone';
-import { db } from '@/core/db';
+import { db } from '@/core/lib/db';
 import { openai } from '@/core/lib/openai';
 import { SendMessageValidator } from '@/app/shared/validation/chat';
 import { pinecone } from '@/core/lib/pinecone';

@@ -1,5 +1,5 @@
 import { notFound, redirect } from 'next/navigation';
-import { db } from '@/core/db';
+import { db } from '@/core/lib/db';
 import PdfRenderer from '@/components/PdfRenderer';
 import ChatWrapper from '@/components/chat/ChatWrapper';
 

@@ -5,8 +5,12 @@ import { compare, hash } from 'bcrypt';
 // import { db } from '@/db';
 import { INFINITE_QUERY_LIMIT } from '@/app/shared/config';
 import { authProcedure, publicProcedure, router } from './trpc';
-import { SignInFormValidator, SignUpFormValidatorBE } from '@/app/shared/validation/auth';
+import {
+  SignInFormValidator,
+  SignUpFormValidatorBE,
+} from '@/app/shared/validation/auth';
 import { signToken } from '@/core/lib/auth';
+import { db } from '../lib/db';
 
 export const appRouter = router({
   signUp: publicProcedure
@@ -14,9 +18,16 @@ export const appRouter = router({
     .mutation(async ({ input }) => {
       const { name, email, password } = input;
       const hashedPassword = await hash(password, 10);
-      const userId = 'userId';
 
-      const token = signToken(userId);
+      const user = await db.user.create({
+        data: {
+          name,
+          email,
+          password: hashedPassword,
+        },
+      });
+
+      const token = signToken(user.id);
 
       return token;
     }),

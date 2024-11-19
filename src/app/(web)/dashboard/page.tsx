@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import Dashboard from '@/components/Dashboard';
-import { db } from '@/core/db';
+import { db } from '@/core/lib/db';
 // import { getKindeUser } from '@/lib/auth';
 
 const DashboardPage = async () => {
