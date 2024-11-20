@@ -19,10 +19,3 @@ export const SignInFormValidator = z.object({
   password: validation.passwordPaste,
 });
 export type SignInFormValidatorType = z.infer<typeof SignInFormValidator>;
-
-export const SignUpFormValidatorBE = z.object({
-  name: validation.name,
-  email: validation.email,
-  password: validation.passwordPaste,
-});
-export type SignUpFormValidatorBEType = z.infer<typeof SignUpFormValidatorBE>;

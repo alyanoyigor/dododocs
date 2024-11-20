@@ -2,19 +2,21 @@ import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 import { utapi } from 'uploadthing/server';
 import { compare, hash } from 'bcrypt';
-// import { db } from '@/db';
 import { INFINITE_QUERY_LIMIT } from '@/app/shared/config';
-import { authProcedure, publicProcedure, router } from './trpc';
 import {
   SignInFormValidator,
-  SignUpFormValidatorBE,
+  SignUpFormValidator,
 } from '@/app/shared/validation/auth';
 import { signToken } from '@/core/lib/auth';
+import { setCookie } from '@/app/shared/actions';
+import { CookieKeys } from '@/app/shared/interfaces/auth.interface';
+
+import { authProcedure, publicProcedure, router } from './trpc';
 import { db } from '../lib/db';
 
 export const appRouter = router({
   signUp: publicProcedure
-    .input(SignUpFormValidatorBE)
+    .input(SignUpFormValidator)
     .mutation(async ({ input }) => {
       const { name, email, password } = input;
       const hashedPassword = await hash(password, 10);
@@ -27,15 +29,15 @@ export const appRouter = router({
         },
       });
 
-      const token = signToken(user.id);
+      const token = await signToken(user.id);
 
-      return token;
+      setCookie(CookieKeys.TOKEN, token);
     }),
   signIn: publicProcedure
     .input(SignInFormValidator)
     .mutation(async ({ input }) => {
       const { email, password } = input;
-      const dbUser = 'dbUser';
+      const dbUser = await db.user.findUnique({ where: { email } });
 
       if (!dbUser) {
         throw new TRPCError({
@@ -43,20 +45,21 @@ export const appRouter = router({
         });
       }
 
-      const dbUserPassword = 'dbUserPassword';
-      const dbUserId = 'dbUserId';
+      const dbUserPassword = dbUser.password;
+      const dbUserId = dbUser.id;
 
       const passwordMatch = await compare(password, dbUserPassword);
 
       if (!passwordMatch) {
         throw new TRPCError({
-          code: 'UNAUTHORIZED',
+          code: 'BAD_REQUEST',
+          message: 'Incorrect password',
         });
       }
 
-      const token = signToken(dbUserId);
+      const token = await signToken(dbUserId);
 
-      return token;
+      setCookie(CookieKeys.TOKEN, token);
     }),
   getUserFiles: authProcedure.query(async ({ ctx }) => {
     // const { userId, user } = ctx;

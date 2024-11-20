@@ -1,6 +1,6 @@
 import AuthTabs from '@/app/shared/components/auth/AuthTabs';
-import { AuthTabsEnum } from '@/app/shared/interfaces/auth.interface';
+import { Routes } from '@/app/shared/interfaces/routes.interface';
 
 export default function SignUp() {
-  return <AuthTabs tab={AuthTabsEnum.SIGN_UP} />;
+  return <AuthTabs tab={Routes.SIGN_UP} />;
 }

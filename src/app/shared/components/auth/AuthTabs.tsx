@@ -1,11 +1,10 @@
 'use client';
 
-import React, { MouseEvent, useState } from 'react';
+import React, { FC, MouseEvent, useState } from 'react';
 import { FieldValues, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 
-import { AuthTabsEnum } from '@/app/shared/interfaces/auth.interface';
 import {
   SignInFormValidator,
   SignInFormValidatorType,
@@ -20,6 +19,7 @@ import MaxWidthWrapper from '../MaxWidthWrapper';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 
 import AuthForm from './AuthForm';
+import { Routes } from '../../interfaces/routes.interface';
 
 function useAuthForm<T extends FieldValues>(
   useFormOptions: any,
@@ -48,28 +48,54 @@ function useAuthForm<T extends FieldValues>(
   };
 }
 
-function AuthTabs({ tab }: { tab: AuthTabsEnum }) {
+interface AuthTabsProps {
+  tab: Routes.SIGN_IN | Routes.SIGN_UP;
+}
+
+const AuthTabs: FC<Readonly<AuthTabsProps>> = ({ tab }) => {
   const [activeTab, setActiveTab] = useState(tab);
   const router = useRouter();
 
-  const {
-    mutate: signUpRequest,
-    isLoading: isSignUpLoading,
-  } = trpc.signUp.useMutation({
-    onSuccess: (token) => {
-      setCookie('token', token);
+  const { mutate: signUpRequest, isLoading: isSignUpLoading } =
+    trpc.signUp.useMutation({
+      onSuccess: () => {
+        resetSignUpForm();
 
-      resetSignUpForm();
-      navigate('/');
-    },
-    onError: () => {
-      setSignUpError('root', {
-        message: 'Internal server error. Please try again later.',
-      });
-    }
-  });
+        // navigate to requested page
+        router.back();
+        // navigate('/');
+      },
+      onError: (error) => {
+        if (error.message.includes('Unique constraint')) {
+          setSignUpError('root', {
+            message: 'This email is already in use. Please sign in.',
+          });
+        }
+      },
+    });
 
-  const { mutate: signInRequest } = trpc.signIn.useMutation();
+  const { mutate: signInRequest, isLoading: isSignInLoading } =
+    trpc.signIn.useMutation({
+      onSuccess: () => {
+        resetSignInForm();
+
+        // navigate to requested page
+        router.back();
+        // navigate('/');
+      },
+      onError: (error) => {
+        if (error.data?.code === 'UNAUTHORIZED') {
+          setSignInError('root', {
+            message: 'This user does not exist. Please sign up.',
+          });
+        }
+        if (error.message.includes('Incorrect password')) {
+          setSignInError('root', {
+            message: 'Incorrect password. Please try again.',
+          });
+        }
+      },
+    });
 
   const {
     register: signUpRegister,
@@ -93,7 +119,7 @@ function AuthTabs({ tab }: { tab: AuthTabsEnum }) {
     (data: SignInFormValidatorType) => signInRequest(data),
   );
 
-  const onTabChange = (tab: AuthTabsEnum) => {
+  const onTabChange = (tab: Routes.SIGN_IN | Routes.SIGN_UP) => {
     setActiveTab(tab);
     router.replace(tab);
 
@@ -106,28 +132,31 @@ function AuthTabs({ tab }: { tab: AuthTabsEnum }) {
     <MaxWidthWrapper>
       <Tabs
         value={activeTab}
-        onValueChange={(value) => onTabChange(value as AuthTabsEnum)}
-        defaultValue={AuthTabsEnum.SIGN_IN}
+        onValueChange={(value) =>
+          onTabChange(value as Routes.SIGN_IN | Routes.SIGN_UP)
+        }
+        defaultValue={Routes.SIGN_IN}
         className="w-ful max-w-[500px] mt-10 mx-auto"
       >
         <TabsList className="w-full">
-          <TabsTrigger value={AuthTabsEnum.SIGN_IN} className="w-full">
+          <TabsTrigger value={Routes.SIGN_IN} className="w-full">
             Sign in
           </TabsTrigger>
-          <TabsTrigger value={AuthTabsEnum.SIGN_UP} className="w-full">
+          <TabsTrigger value={Routes.SIGN_UP} className="w-full">
             Sign up
           </TabsTrigger>
         </TabsList>
-        <TabsContent value={AuthTabsEnum.SIGN_IN}>
+        <TabsContent value={Routes.SIGN_IN}>
           <AuthForm
             title="Sign In"
             errors={signInErrors}
             register={signInRegister}
             onSubmit={onSignInSubmit}
             inputs={signInInputs}
+            isLoading={isSignInLoading}
           />
         </TabsContent>
-        <TabsContent value={AuthTabsEnum.SIGN_UP}>
+        <TabsContent value={Routes.SIGN_UP}>
           <AuthForm
             title="Sign Up"
             errors={signUpErrorsForm}
@@ -140,6 +169,6 @@ function AuthTabs({ tab }: { tab: AuthTabsEnum }) {
       </Tabs>
     </MaxWidthWrapper>
   );
-}
+};
 
 export default AuthTabs;

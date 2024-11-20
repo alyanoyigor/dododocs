@@ -13,11 +13,11 @@ const createTRPCContext = (options: CreateNextContextOptions) => {
 
 const t = initTRPC.context<Awaited<ReturnType<typeof createTRPCContext>>>().create();
 
-const isAuth = t.middleware(({ctx, next}) => {
+const isAuth = t.middleware(async ({ctx, next}) => {
   const { req } = ctx;
   const token = req.headers.authorization?.split(' ')[1];
 
-  const userId = verifyToken(token);
+  const userId = await verifyToken(token);
 
   return next({
     ctx: {

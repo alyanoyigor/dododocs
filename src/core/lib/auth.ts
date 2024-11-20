@@ -1,26 +1,36 @@
+import * as jose from 'jose';
+
 import { TRPCError } from '@trpc/server';
-import { sign, verify } from 'jsonwebtoken';
+import { getCookie } from '@/app/shared/actions';
+import { CookieKeys } from '@/app/shared/interfaces/auth.interface';
 
 export async function verifyToken(token?: string) {
-  if (!token) {
-    throw new TRPCError({
-      code: 'UNAUTHORIZED',
-    });
+  try {
+    if (!token) {
+      throw new TRPCError({
+        code: 'UNAUTHORIZED',
+      });
+    }
+
+    if (!process.env.JWT_SECRET) {
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'JWT secret not found',
+      });
+    }
+
+    const { payload } = await jose.jwtVerify(
+      token,
+      new TextEncoder().encode(process.env.JWT_SECRET),
+    );
+
+    return payload.userId;
+  } catch (error) {
+    return false;
   }
-
-  if (!process.env.JWT_SECRET) {
-    throw new TRPCError({
-      code: 'INTERNAL_SERVER_ERROR',
-      message: 'JWT secret not found',
-    });
-  }
-
-  const payload = verify(token, process.env.JWT_SECRET) as { userId: string };
-
-  return payload.userId;
 }
 
-export function signToken(userId: string) {
+export async function signToken(userId: string) {
   if (!process.env.JWT_SECRET) {
     throw new TRPCError({
       code: 'INTERNAL_SERVER_ERROR',
@@ -28,9 +38,18 @@ export function signToken(userId: string) {
     });
   }
 
-  const token = sign({ userId }, process.env.JWT_SECRET, {
-    expiresIn: '1h',
-  });
+  const token = await new jose.SignJWT()
+    .setProtectedHeader({ alg: 'HS256' })
+    .setAudience(userId)
+    .setExpirationTime('1h')
+    .sign(new TextEncoder().encode(process.env.JWT_SECRET));
 
   return token;
 }
+
+export const isAuthenticated = async () => {
+  const token = await getCookie(CookieKeys.TOKEN);
+  const verified = await verifyToken(token);
+
+  return verified;
+};
