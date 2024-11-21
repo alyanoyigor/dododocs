@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import Dashboard from '@/components/Dashboard';
+// import Dashboard from '@/components/Dashboard';
 import { db } from '@/core/lib/db';
 // import { getKindeUser } from '@/lib/auth';
 
@@ -19,7 +19,8 @@ const DashboardPage = async () => {
   //   redirect(redirectPath);
   // }
 
-  return <Dashboard />;
+  // return <Dashboard />;
+  return <div>Dashboard</div>
 };
 
 export default DashboardPage;

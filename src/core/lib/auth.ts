@@ -24,7 +24,7 @@ export async function verifyToken(token?: string) {
       new TextEncoder().encode(process.env.JWT_SECRET),
     );
 
-    return payload.userId;
+    return payload.aud;
   } catch (error) {
     return false;
   }

@@ -31,7 +31,7 @@ export const appRouter = router({
 
       const token = await signToken(user.id);
 
-      setCookie(CookieKeys.TOKEN, token);
+      await setCookie(CookieKeys.TOKEN, token);
     }),
   signIn: publicProcedure
     .input(SignInFormValidator)
@@ -59,7 +59,7 @@ export const appRouter = router({
 
       const token = await signToken(dbUserId);
 
-      setCookie(CookieKeys.TOKEN, token);
+      await setCookie(CookieKeys.TOKEN, token);
     }),
   getUserFiles: authProcedure.query(async ({ ctx }) => {
     // const { userId, user } = ctx;
